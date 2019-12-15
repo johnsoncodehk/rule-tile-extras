@@ -7,3 +7,14 @@ The following line needs to be added to your Packages/manifest.json file in your
 ```json
 "com.johnsoncodehk.rule-tile-extras": "https://github.com/johnsoncodehk/rule-tile-extras.git"
 ```
+
+### Tilemap
+
+##### Tiles
+
+- **Edge Tile**
+- **Door Tile**
+
+##### Rule Tiles
+
+- **Sibling Rule Tile**
