@@ -8,12 +8,22 @@ namespace RuleTileExtras
     {
 
         public bool m_MatchEdge;
+        public bool m_MatchDoor;
         public bool m_MatchSilbling;
         public int m_SiblingLayer;
 
         public override bool RuleMatch(int neighbor, TileBase other)
         {
             if (m_MatchEdge && other is EdgeTile)
+            {
+                switch (neighbor)
+                {
+                    case TilingRule.Neighbor.This: return true;
+                    case TilingRule.Neighbor.NotThis: return false;
+                }
+            }
+
+            if (m_MatchDoor && other is DoorTile)
             {
                 switch (neighbor)
                 {
