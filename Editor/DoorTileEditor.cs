@@ -12,7 +12,7 @@ namespace RuleTileExtras.Editor
 
         public DoorTile doorTile => target as DoorTile;
 
-        public List<KeyValuePair<KeyValuePair<Vector3Int, Tilemap>, bool>> m_DataList = new List<KeyValuePair<KeyValuePair<Vector3Int, Tilemap>, bool>>();
+        public List<KeyValuePair<DoorTile.DataKey, bool>> m_DataList = new List<KeyValuePair<DoorTile.DataKey, bool>>();
         public ReorderableList m_ReorderableList;
 
         public void OnEnable()
@@ -27,19 +27,20 @@ namespace RuleTileExtras.Editor
 
         public override void OnInspectorGUI()
         {
-            doorTile.m_OnOpenSprite = EditorGUILayout.ObjectField("On Open Sprite", doorTile.m_OnOpenSprite, typeof(Sprite), false) as Sprite;
-            doorTile.m_OnOpenGameObject = EditorGUILayout.ObjectField("On Open Game Object", doorTile.m_OnOpenGameObject, typeof(GameObject), false) as GameObject;
-            doorTile.m_OnOpenColliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("On Open Collider", doorTile.m_OnOpenColliderType);
+            doorTile.outputs[0].m_Sprite = EditorGUILayout.ObjectField("On Close Sprite", doorTile.outputs[0].m_Sprite, typeof(Sprite), false) as Sprite;
+            doorTile.outputs[0].m_GameObject = EditorGUILayout.ObjectField("On Close Game Object", doorTile.outputs[0].m_GameObject, typeof(GameObject), false) as GameObject;
+            doorTile.outputs[0].m_ColliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("On Close Collider", doorTile.outputs[0].m_ColliderType);
             EditorGUILayout.Space();
 
-            doorTile.m_OnCloseSprite = EditorGUILayout.ObjectField("On Close Sprite", doorTile.m_OnCloseSprite, typeof(Sprite), false) as Sprite;
-            doorTile.m_OnCloseGameObject = EditorGUILayout.ObjectField("On Close Game Object", doorTile.m_OnCloseGameObject, typeof(GameObject), false) as GameObject;
-            doorTile.m_OnCloseColliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("On Close Collider", doorTile.m_OnCloseColliderType);
+            doorTile.outputs[1].m_Sprite = EditorGUILayout.ObjectField("On Open Sprite", doorTile.outputs[1].m_Sprite, typeof(Sprite), false) as Sprite;
+            doorTile.outputs[1].m_GameObject = EditorGUILayout.ObjectField("On Open Game Object", doorTile.outputs[1].m_GameObject, typeof(GameObject), false) as GameObject;
+            doorTile.outputs[1].m_ColliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("On Open Collider", doorTile.outputs[1].m_ColliderType);
             EditorGUILayout.Space();
 
             m_DataList.Clear();
-            foreach (var data in DoorTile.m_Data)
-                m_DataList.Add(data);
+            if (Application.isPlaying)
+                foreach (var data in DoorTile.m_Data)
+                    m_DataList.Add(data);
 
             m_ReorderableList.DoLayoutList();
         }
@@ -59,8 +60,8 @@ namespace RuleTileExtras.Editor
 
             using (new EditorGUI.DisabledGroupScope(true))
             {
-                EditorGUI.ObjectField(tilemapRect, GUIContent.none, data.Key.Value, typeof(Tilemap), true);
-                EditorGUI.Vector3IntField(positionRect, GUIContent.none, data.Key.Key);
+                EditorGUI.ObjectField(tilemapRect, GUIContent.none, data.Key.tilemap, typeof(Tilemap), true);
+                EditorGUI.Vector3IntField(positionRect, GUIContent.none, data.Key.position);
             }
 
             using (var check = new EditorGUI.ChangeCheckScope())

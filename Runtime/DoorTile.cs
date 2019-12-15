@@ -8,26 +8,24 @@ namespace RuleTileExtras
     public partial class DoorTile : TileBase
     {
 
-        public Sprite m_OnOpenSprite, m_OnCloseSprite;
-        public GameObject m_OnOpenGameObject, m_OnCloseGameObject;
-        public Tile.ColliderType m_OnOpenColliderType, m_OnCloseColliderType;
+        [System.Serializable]
+        public struct OutputTileData
+        {
+            public Sprite m_Sprite;
+            public GameObject m_GameObject;
+            public Tile.ColliderType m_ColliderType;
+        }
+
+        public OutputTileData[] outputs = new OutputTileData[2];
 
         public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData)
         {
             bool doorOpen = IsOpen(position, tilemap.GetComponent<Tilemap>());
+            OutputTileData data = outputs[doorOpen ? 1 : 0];
 
-            if (doorOpen)
-            {
-                tileData.sprite = m_OnOpenSprite;
-                tileData.gameObject = m_OnOpenGameObject;
-                tileData.colliderType = m_OnOpenColliderType;
-            }
-            else
-            {
-                tileData.sprite = m_OnCloseSprite;
-                tileData.gameObject = m_OnCloseGameObject;
-                tileData.colliderType = m_OnCloseColliderType;
-            }
+            tileData.sprite = data.m_Sprite;
+            tileData.gameObject = data.m_GameObject;
+            tileData.colliderType = data.m_ColliderType;
         }
 
         public override bool StartUp(Vector3Int position, ITilemap tilemap, GameObject go)
@@ -44,7 +42,13 @@ namespace RuleTileExtras
     public partial class DoorTile
     {
 
-        public static Dictionary<KeyValuePair<Vector3Int, Tilemap>, bool> m_Data = new Dictionary<KeyValuePair<Vector3Int, Tilemap>, bool>();
+        public struct DataKey
+        {
+            public Vector3Int position;
+            public Tilemap tilemap;
+        }
+
+        public static Dictionary<DataKey, bool> m_Data = new Dictionary<DataKey, bool>();
 
         public static void SetOpen(Vector3Int position, Tilemap tilemap, bool open)
         {
@@ -52,10 +56,10 @@ namespace RuleTileExtras
             SetOpen(dataKey, open);
         }
 
-        public static void SetOpen(KeyValuePair<Vector3Int, Tilemap> dataKey, bool open)
+        public static void SetOpen(DataKey dataKey, bool open)
         {
             m_Data[dataKey] = open;
-            dataKey.Value.RefreshTile(dataKey.Key);
+            dataKey.tilemap.RefreshTile(dataKey.position);
         }
 
         public static bool IsOpen(Vector3Int position, Tilemap tilemap)
@@ -68,14 +72,17 @@ namespace RuleTileExtras
             return false;
         }
 
-        public static KeyValuePair<Vector3Int, Tilemap> GetDataKey(Vector3Int position, ITilemap tilemap)
+        public static DataKey GetDataKey(Vector3Int position, ITilemap tilemap)
         {
             return GetDataKey(position, tilemap.GetComponent<Tilemap>());
         }
 
-        public static KeyValuePair<Vector3Int, Tilemap> GetDataKey(Vector3Int position, Tilemap tilemap)
+        public static DataKey GetDataKey(Vector3Int position, Tilemap tilemap)
         {
-            return new KeyValuePair<Vector3Int, Tilemap>(position, tilemap);
+            var dataKey = new DataKey();
+            dataKey.position = position;
+            dataKey.tilemap = tilemap;
+            return dataKey;
         }
     }
 }
