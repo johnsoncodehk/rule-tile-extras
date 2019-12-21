@@ -7,44 +7,25 @@ namespace RuleTileExtras
     public class SiblingRuleTile : RuleTile
     {
 
-        public bool m_MatchEdge;
-        public bool m_MatchDoor;
-        public bool m_MatchSilbling;
+        public TileBase[] m_Siblings = new TileBase[0];
+        public bool m_MatchSiblingLayer;
         public int m_SiblingLayer;
 
         public override bool RuleMatch(int neighbor, TileBase other)
         {
-            if (m_MatchEdge && other is EdgeTile)
-            {
-                switch (neighbor)
-                {
-                    case TilingRule.Neighbor.This: return true;
-                    case TilingRule.Neighbor.NotThis: return false;
-                }
-            }
+            bool isMatchCondition = neighbor == RuleTile.TilingRule.Neighbor.This;
 
-            if (m_MatchDoor && other is DoorTile)
-            {
-                switch (neighbor)
-                {
-                    case TilingRule.Neighbor.This: return true;
-                    case TilingRule.Neighbor.NotThis: return false;
-                }
-            }
+            foreach (TileBase sibling in m_Siblings)
+                if (other == sibling)
+                    return isMatchCondition;
 
             if (other is RuleOverrideTile)
                 other = (other as RuleOverrideTile).m_InstanceTile;
 
-            if (m_MatchSilbling && other is SiblingRuleTile)
+            if (m_MatchSiblingLayer && other is SiblingRuleTile)
             {
-                SiblingRuleTile otherSibTile = other as SiblingRuleTile;
-                bool match = m_SiblingLayer == otherSibTile.m_SiblingLayer;
-
-                switch (neighbor)
-                {
-                    case TilingRule.Neighbor.This: return match;
-                    case TilingRule.Neighbor.NotThis: return !match;
-                }
+                bool isMatch = m_SiblingLayer == (other as SiblingRuleTile).m_SiblingLayer;
+                return isMatch == isMatchCondition;
             }
 
             return base.RuleMatch(neighbor, other);
