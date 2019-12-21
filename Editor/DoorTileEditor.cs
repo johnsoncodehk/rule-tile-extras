@@ -10,9 +10,16 @@ namespace RuleTileExtras.Editor
     public class DoorTileEditor : UnityEditor.Editor
     {
 
+        public struct DataKey
+        {
+            public Vector3Int position;
+            public Tilemap tilemap;
+            public GridInformation gridInfo;
+        }
+
         public DoorTile doorTile => target as DoorTile;
 
-        public List<KeyValuePair<DoorTile.DataKey, bool>> m_DataList = new List<KeyValuePair<DoorTile.DataKey, bool>>();
+        public List<KeyValuePair<DataKey, bool>> m_DataList = new List<KeyValuePair<DataKey, bool>>();
         public ReorderableList m_ReorderableList;
 
         public void OnEnable()
@@ -37,25 +44,58 @@ namespace RuleTileExtras.Editor
             doorTile.outputs[1].m_ColliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("On Open Collider", doorTile.outputs[1].m_ColliderType);
             EditorGUILayout.Space();
 
+            doorTile.gridInformationKey = EditorGUILayout.TextField("Grid Information Key", doorTile.gridInformationKey);
+            EditorGUILayout.Space();
+
             m_DataList.Clear();
-            if (Application.isPlaying)
-                foreach (var data in DoorTile.m_Data)
-                    m_DataList.Add(data);
+            var tilemaps = FindObjectsOfType<Tilemap>();
+            foreach (var tilemap in tilemaps)
+            {
+                var bounds = tilemap.cellBounds;
+                for (int x = bounds.xMin; x < bounds.xMax; x++)
+                {
+                    for (int y = bounds.yMin; y < bounds.yMax; y++)
+                    {
+                        var position = new Vector3Int(x, y, 0);
+                        var doorTile = tilemap.GetTile(position);
+                        if (doorTile == this.doorTile)
+                        {
+                            bool dataValue = false;
+                            var gridInfo = tilemap.GetComponent<GridInformation>();
+                            if (gridInfo)
+                                dataValue = this.doorTile.IsOpen(position, gridInfo);
+
+                            var dataKey = new DataKey();
+                            dataKey.tilemap = tilemap;
+                            dataKey.gridInfo = gridInfo;
+                            dataKey.position = position;
+
+                            m_DataList.Add(new KeyValuePair<DataKey, bool>(dataKey, dataValue));
+                        }
+                    }
+                }
+            }
 
             m_ReorderableList.DoLayoutList();
         }
 
         public void OnDrawHeader(Rect rect)
         {
-            GUI.Label(rect, "Door Tiles");
+            Rect toggleRect = new Rect(rect.xMax - 136, rect.y, 136, rect.height);
+            Rect tilemapRect = new Rect(rect.xMin, rect.y, (rect.width - toggleRect.width) * 0.5f, rect.height);
+            Rect positionRect = new Rect(tilemapRect.xMax, rect.y, rect.width - tilemapRect.width - toggleRect.width, rect.height);
+
+            GUI.Label(tilemapRect, "Tilemap");
+            GUI.Label(positionRect, "Position");
+            GUI.Label(toggleRect, doorTile.gridInformationKey);
         }
 
         public void OnDrawElement(Rect rect, int index, bool isactive, bool isfocused)
         {
             var data = m_DataList[index];
 
-            Rect toggleRect = new Rect(rect.xMax - 16, rect.y, 16, rect.height);
-            Rect tilemapRect = new Rect(rect.xMin, rect.y, rect.width * 0.3f - toggleRect.width, rect.height);
+            Rect toggleRect = new Rect(rect.xMax - 136, rect.y, 136, rect.height);
+            Rect tilemapRect = new Rect(rect.xMin, rect.y, (rect.width - toggleRect.width) * 0.5f, rect.height);
             Rect positionRect = new Rect(tilemapRect.xMax, rect.y, rect.width - tilemapRect.width - toggleRect.width, rect.height);
 
             using (new EditorGUI.DisabledGroupScope(true))
@@ -64,12 +104,20 @@ namespace RuleTileExtras.Editor
                 EditorGUI.Vector3IntField(positionRect, GUIContent.none, data.Key.position);
             }
 
-            using (var check = new EditorGUI.ChangeCheckScope())
+            if (!data.Key.gridInfo)
             {
-                bool open = EditorGUI.ToggleLeft(toggleRect, GUIContent.none, data.Value);
+                if (GUI.Button(toggleRect, "Add GridInformation"))
+                    data.Key.tilemap.gameObject.AddComponent<GridInformation>();
+            }
+            else
+            {
+                using (var check = new EditorGUI.ChangeCheckScope())
+                {
+                    bool open = EditorGUI.ToggleLeft(toggleRect, GUIContent.none, data.Value);
 
-                if (check.changed)
-                    DoorTile.SetOpen(data.Key, open);
+                    if (check.changed)
+                        doorTile.SetOpen(data.Key.position, data.Key.tilemap, data.Key.gridInfo, open);
+                }
             }
         }
     }
