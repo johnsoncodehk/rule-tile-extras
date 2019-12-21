@@ -8,17 +8,14 @@ namespace RuleTileExtras
     public class EdgeTile : Tile
     {
 
-        public static Dictionary<ITilemap, HashSet<Vector3Int>> m_StartUpPositions = new Dictionary<ITilemap, HashSet<Vector3Int>>();
+        static HashSet<KeyValuePair<ITilemap, Vector3Int>> m_StartUpPositions = new HashSet<KeyValuePair<ITilemap, Vector3Int>>();
 
-        public override bool StartUp(Vector3Int location, ITilemap tilemap, GameObject instantiatedGameObject)
+        public override bool StartUp(Vector3Int position, ITilemap tilemap, GameObject instantiatedGameObject)
         {
-            if (!m_StartUpPositions.ContainsKey(tilemap))
-                m_StartUpPositions[tilemap] = new HashSet<Vector3Int>();
+            if (m_StartUpPositions.Add(new KeyValuePair<ITilemap, Vector3Int>(tilemap, position)))
+                tilemap.RefreshTile(position);
 
-            if (m_StartUpPositions[tilemap].Add(location))
-                tilemap.RefreshTile(location);
-
-            return base.StartUp(location, tilemap, instantiatedGameObject);
+            return base.StartUp(position, tilemap, instantiatedGameObject);
         }
 
         public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData)
