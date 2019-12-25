@@ -34,14 +34,14 @@ namespace RuleTileExtras.Editor
 
         public override void OnInspectorGUI()
         {
-            doorTile.outputs[0].m_Sprite = EditorGUILayout.ObjectField("On Close Sprite", doorTile.outputs[0].m_Sprite, typeof(Sprite), false) as Sprite;
-            doorTile.outputs[0].m_GameObject = EditorGUILayout.ObjectField("On Close Game Object", doorTile.outputs[0].m_GameObject, typeof(GameObject), false) as GameObject;
-            doorTile.outputs[0].m_ColliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("On Close Collider", doorTile.outputs[0].m_ColliderType);
+            doorTile.outputs[0].sprite = EditorGUILayout.ObjectField("On Close Sprite", doorTile.outputs[0].sprite, typeof(Sprite), false) as Sprite;
+            doorTile.outputs[0].gameObject = EditorGUILayout.ObjectField("On Close Game Object", doorTile.outputs[0].gameObject, typeof(GameObject), false) as GameObject;
+            doorTile.outputs[0].colliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("On Close Collider", doorTile.outputs[0].colliderType);
             EditorGUILayout.Space();
 
-            doorTile.outputs[1].m_Sprite = EditorGUILayout.ObjectField("On Open Sprite", doorTile.outputs[1].m_Sprite, typeof(Sprite), false) as Sprite;
-            doorTile.outputs[1].m_GameObject = EditorGUILayout.ObjectField("On Open Game Object", doorTile.outputs[1].m_GameObject, typeof(GameObject), false) as GameObject;
-            doorTile.outputs[1].m_ColliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("On Open Collider", doorTile.outputs[1].m_ColliderType);
+            doorTile.outputs[1].sprite = EditorGUILayout.ObjectField("On Open Sprite", doorTile.outputs[1].sprite, typeof(Sprite), false) as Sprite;
+            doorTile.outputs[1].gameObject = EditorGUILayout.ObjectField("On Open Game Object", doorTile.outputs[1].gameObject, typeof(GameObject), false) as GameObject;
+            doorTile.outputs[1].colliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("On Open Collider", doorTile.outputs[1].colliderType);
             EditorGUILayout.Space();
 
             doorTile.gridInformationKey = EditorGUILayout.TextField("Grid Information Key", doorTile.gridInformationKey);

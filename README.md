@@ -12,7 +12,7 @@ The following line needs to be added to your Packages/manifest.json file in your
 
 ##### Tiles
 
-- **Edge Tile**: The Edge Tile is used to define the map boundary. It is only visible in the editor and will be hidden automatically in play mode.
+- **Editor Only Tile**: Editor Only Tile is only visible in the editor and will be hidden automatically in play mode. It can used to define the map edge.
 - **Door Tile**: Door Tile can control the open or closed state of the tile, using GridInformation to store the state.
 
 ##### Rule Tiles

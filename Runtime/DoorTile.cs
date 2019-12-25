@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace RuleTileExtras
@@ -11,9 +10,9 @@ namespace RuleTileExtras
         [System.Serializable]
         public struct OutputTileData
         {
-            public Sprite m_Sprite;
-            public GameObject m_GameObject;
-            public Tile.ColliderType m_ColliderType;
+            public Sprite sprite;
+            public GameObject gameObject;
+            public Tile.ColliderType colliderType;
         }
 
         public OutputTileData[] outputs = new OutputTileData[2];
@@ -25,9 +24,9 @@ namespace RuleTileExtras
             bool isOpen = gridInfo ? IsOpen(position, gridInfo) : false;
             OutputTileData data = outputs[isOpen ? 1 : 0];
 
-            tileData.sprite = data.m_Sprite;
-            tileData.gameObject = data.m_GameObject;
-            tileData.colliderType = data.m_ColliderType;
+            tileData.sprite = data.sprite;
+            tileData.gameObject = data.gameObject;
+            tileData.colliderType = data.colliderType;
         }
 
         public bool IsOpen(Vector3Int position, GridInformation gridInfo)

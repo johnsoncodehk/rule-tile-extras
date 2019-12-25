@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Tilemaps;
+using System.Collections.Generic;
 
 namespace RuleTileExtras
 {
@@ -7,24 +8,23 @@ namespace RuleTileExtras
     public class SiblingRuleTile : RuleTile
     {
 
-        public TileBase[] m_Siblings = new TileBase[0];
-        public bool m_MatchSiblingLayer;
-        public int m_SiblingLayer;
+        public List<TileBase> siblings = new List<TileBase>();
+        public bool matchSiblingLayer;
+        public int siblingLayer;
 
         public override bool RuleMatch(int neighbor, TileBase other)
         {
             bool isMatchCondition = neighbor == RuleTile.TilingRule.Neighbor.This;
 
-            foreach (TileBase sibling in m_Siblings)
-                if (other == sibling)
-                    return isMatchCondition;
+            if (siblings.Contains(other))
+                return isMatchCondition;
 
             if (other is RuleOverrideTile)
                 other = (other as RuleOverrideTile).m_InstanceTile;
 
-            if (m_MatchSiblingLayer && other is SiblingRuleTile)
+            if (matchSiblingLayer && other is SiblingRuleTile)
             {
-                bool isMatch = m_SiblingLayer == (other as SiblingRuleTile).m_SiblingLayer;
+                bool isMatch = siblingLayer == (other as SiblingRuleTile).siblingLayer;
                 return isMatch == isMatchCondition;
             }
 

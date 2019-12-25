@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace RuleTileExtras
 {
-    [CreateAssetMenu(menuName = "Rule Tile Extras/Edge Tile")]
-    public class EdgeTile : Tile
+    [CreateAssetMenu(menuName = "Rule Tile Extras/Editor Only Tile")]
+    public class EditorOnlyTile : Tile
     {
 
         static HashSet<KeyValuePair<ITilemap, Vector3Int>> m_StartUpPositions = new HashSet<KeyValuePair<ITilemap, Vector3Int>>();
