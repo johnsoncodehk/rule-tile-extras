@@ -18,3 +18,4 @@ The following line needs to be added to your Packages/manifest.json file in your
 ##### Rule Tiles
 
 - **Sibling Rule Tile**: Sibling Rule Tile can be matched with other Sibling Rule Tile of the same layer.
+- **Wall Rule Tile**: Wall Rule Tile is used to surround any other tiles. [(Sample)](https://user-images.githubusercontent.com/16279759/67807460-cc0ba400-facf-11e9-9a19-03c1843e91e8.png)
