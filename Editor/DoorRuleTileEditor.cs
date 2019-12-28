@@ -134,5 +134,51 @@ namespace RuleTileExtras.Editor
                 }
             }
         }
+
+        public override void OnPreviewGUI(Rect r, GUIStyle background)
+        {
+            if (m_PreviewUtility == null)
+                CreatePreview();
+
+            if (Event.current.type != EventType.Repaint)
+                return;
+
+            m_PreviewUtility.BeginPreview(r, background);
+            m_PreviewUtility.camera.orthographicSize = 0.5f;
+            if (r.height * 2 > r.width)
+                m_PreviewUtility.camera.orthographicSize *= (float)r.height * 2 / r.width;
+            m_PreviewUtility.camera.Render();
+            m_PreviewUtility.EndAndDrawPreview(r);
+        }
+
+        public override void CreatePreview()
+        {
+            m_PreviewUtility = new PreviewRenderUtility(true);
+            m_PreviewUtility.camera.orthographic = true;
+            m_PreviewUtility.camera.orthographicSize = 0.5f;
+            m_PreviewUtility.camera.transform.position = new Vector3(0, 0.5f, -10);
+
+            var previewInstance = new GameObject();
+            m_PreviewGrid = previewInstance.AddComponent<Grid>();
+            m_PreviewUtility.AddSingleGO(previewInstance);
+
+            m_PreviewTilemaps = new List<Tilemap>();
+            m_PreviewTilemapRenderers = new List<TilemapRenderer>();
+
+            for (int i = 0; i < 2; i++)
+            {
+                var previewTilemapGo = new GameObject();
+                m_PreviewTilemaps.Add(previewTilemapGo.AddComponent<Tilemap>());
+                m_PreviewTilemapRenderers.Add(previewTilemapGo.AddComponent<TilemapRenderer>());
+
+                previewTilemapGo.transform.SetParent(previewInstance.transform, false);
+            }
+
+            m_PreviewTilemaps[0].SetTile(new Vector3Int(-1, 0, 0), tile);
+            m_PreviewTilemaps[1].SetTile(new Vector3Int(0, 0, 0), tile);
+
+            doorTile.SetOpen(new Vector3Int(-1, 0, 0), m_PreviewTilemaps[0], m_PreviewTilemaps[0].gameObject.AddComponent<GridInformation>(), false);
+            doorTile.SetOpen(new Vector3Int(0, 0, 0), m_PreviewTilemaps[1], m_PreviewTilemaps[1].gameObject.AddComponent<GridInformation>(), true);
+        }
     }
 }
