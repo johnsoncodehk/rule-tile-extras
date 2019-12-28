@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RuleTileExtras
 {
-    [CreateAssetMenu(menuName = "Rule Tile Extras/Rule Tiles/Wall Rule Tile")]
+    [CreateAssetMenu(menuName = "Rule Tile Extras/Wall Rule Tile")]
     public class WallRuleTile : RuleTile<WallRuleTile.Neighbor>
     {
 

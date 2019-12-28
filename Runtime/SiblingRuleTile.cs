@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RuleTileExtras
 {
-    [CreateAssetMenu(menuName = "Rule Tile Extras/Rule Tiles/Sibling Rule Tile")]
+    [CreateAssetMenu(menuName = "Rule Tile Extras/Sibling Rule Tile")]
     public class SiblingRuleTile : RuleTile
     {
 

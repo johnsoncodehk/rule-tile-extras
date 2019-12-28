@@ -6,8 +6,8 @@ using UnityEditorInternal;
 
 namespace RuleTileExtras.Editor
 {
-    [CustomEditor(typeof(DoorTile))]
-    public class DoorTileEditor : UnityEditor.Editor
+    [CustomEditor(typeof(DoorRuleTile))]
+    public class DoorRuleTileEditor : RuleTileEditor
     {
 
         public struct DataKey
@@ -17,34 +17,48 @@ namespace RuleTileExtras.Editor
             public GridInformation gridInfo;
         }
 
-        public DoorTile doorTile => target as DoorTile;
+        public DoorRuleTile doorTile => target as DoorRuleTile;
 
         public List<KeyValuePair<DataKey, bool>> m_DataList = new List<KeyValuePair<DataKey, bool>>();
-        public ReorderableList m_ReorderableList;
+        public ReorderableList m_InstanceList;
 
-        public void OnEnable()
+        public ReorderableList instanceList
         {
-            if (m_ReorderableList == null)
+            get
             {
-                m_ReorderableList = new ReorderableList(m_DataList, typeof(RuleTile.TilingRule), false, false, false, false);
-                m_ReorderableList.drawHeaderCallback = OnDrawHeader;
-                m_ReorderableList.drawElementCallback = OnDrawElement;
+                if (m_InstanceList == null)
+                {
+                    m_InstanceList = new ReorderableList(m_DataList, typeof(RuleTile.TilingRule), false, false, false, false);
+                    m_InstanceList.drawHeaderCallback = OnDrawInstanceListHeader;
+                    m_InstanceList.drawElementCallback = OnDrawInstanceElement;
+                }
+                return m_InstanceList;
             }
         }
 
         public override void OnInspectorGUI()
         {
-            doorTile.outputs[0].sprite = EditorGUILayout.ObjectField("On Close Sprite", doorTile.outputs[0].sprite, typeof(Sprite), false) as Sprite;
-            doorTile.outputs[0].gameObject = EditorGUILayout.ObjectField("On Close Game Object", doorTile.outputs[0].gameObject, typeof(GameObject), false) as GameObject;
-            doorTile.outputs[0].colliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("On Close Collider", doorTile.outputs[0].colliderType);
-            EditorGUILayout.Space();
+            base.OnInspectorGUI();
+            if (doorTile.m_TilingRules.Count > 0)
+            {
+                float index = doorTile.rulesSplitIndex;
+                float max = doorTile.m_TilingRules.Count;
+                EditorGUILayout.MinMaxSlider(ref index, ref max, 0, max);
+                int newIndex = Mathf.RoundToInt(index);
+                if (doorTile.rulesSplitIndex != newIndex)
+                {
+                    doorTile.rulesSplitIndex = newIndex;
+                    SaveTile();
+                }
 
-            doorTile.outputs[1].sprite = EditorGUILayout.ObjectField("On Open Sprite", doorTile.outputs[1].sprite, typeof(Sprite), false) as Sprite;
-            doorTile.outputs[1].gameObject = EditorGUILayout.ObjectField("On Open Game Object", doorTile.outputs[1].gameObject, typeof(GameObject), false) as GameObject;
-            doorTile.outputs[1].colliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("On Open Collider", doorTile.outputs[1].colliderType);
-            EditorGUILayout.Space();
-
-            doorTile.gridInformationKey = EditorGUILayout.TextField("Grid Information Key", doorTile.gridInformationKey);
+                List<int> closeRules = new List<int>();
+                List<int> openRules = new List<int>();
+                for (int i = 0; i < doorTile.m_TilingRules.Count; i++)
+                    (i < doorTile.rulesSplitIndex ? closeRules : openRules).Add(i);
+                string info = "Close Tiling Rules: " + string.Join(", ", closeRules);
+                info += "\nOpen Tiling Rules: " + string.Join(", ", openRules);
+                EditorGUILayout.HelpBox(info, MessageType.Info);
+            }
             EditorGUILayout.Space();
 
             m_DataList.Clear();
@@ -76,10 +90,10 @@ namespace RuleTileExtras.Editor
                 }
             }
 
-            m_ReorderableList.DoLayoutList();
+            instanceList.DoLayoutList();
         }
 
-        public void OnDrawHeader(Rect rect)
+        public void OnDrawInstanceListHeader(Rect rect)
         {
             Rect toggleRect = new Rect(rect.xMax - 136, rect.y, 136, rect.height);
             Rect tilemapRect = new Rect(rect.xMin, rect.y, (rect.width - toggleRect.width) * 0.5f, rect.height);
@@ -90,7 +104,7 @@ namespace RuleTileExtras.Editor
             GUI.Label(toggleRect, doorTile.gridInformationKey);
         }
 
-        public void OnDrawElement(Rect rect, int index, bool isactive, bool isfocused)
+        public void OnDrawInstanceElement(Rect rect, int index, bool isactive, bool isfocused)
         {
             var data = m_DataList[index];
 

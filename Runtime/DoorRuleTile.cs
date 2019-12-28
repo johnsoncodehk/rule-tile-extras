@@ -3,30 +3,23 @@ using UnityEngine.Tilemaps;
 
 namespace RuleTileExtras
 {
-    [CreateAssetMenu(menuName = "Rule Tile Extras/Door Tile")]
-    public partial class DoorTile : TileBase
+    [CreateAssetMenu(menuName = "Rule Tile Extras/Door Rule Tile")]
+    public partial class DoorRuleTile : RuleTile
     {
 
-        [System.Serializable]
-        public struct OutputTileData
-        {
-            public Sprite sprite;
-            public GameObject gameObject;
-            public Tile.ColliderType colliderType;
-        }
-
-        public OutputTileData[] outputs = new OutputTileData[2];
+        public int rulesSplitIndex = 0;
         public string gridInformationKey = "Is Opened";
 
-        public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData)
+        protected override bool RuleMatches(TilingRule rule, Vector3Int position, ITilemap tilemap, ref Matrix4x4 transform)
         {
             GridInformation gridInfo = tilemap.GetComponent<GridInformation>();
             bool isOpen = gridInfo ? IsOpen(position, gridInfo) : false;
-            OutputTileData data = outputs[isOpen ? 1 : 0];
+            bool isOpenRule = m_TilingRules.IndexOf(rule) >= rulesSplitIndex;
 
-            tileData.sprite = data.sprite;
-            tileData.gameObject = data.gameObject;
-            tileData.colliderType = data.colliderType;
+            if (isOpen != isOpenRule)
+                return false;
+
+            return base.RuleMatches(rule, position, tilemap, ref transform);
         }
 
         public bool IsOpen(Vector3Int position, GridInformation gridInfo)
