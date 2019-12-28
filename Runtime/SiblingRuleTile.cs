@@ -15,20 +15,23 @@ namespace RuleTileExtras
         public override bool RuleMatch(int neighbor, TileBase other)
         {
             bool isMatchCondition = neighbor == RuleTile.TilingRule.Neighbor.This;
+            bool isMatch = other == this;
 
-            if (siblings.Contains(other))
-                return isMatchCondition;
-
-            if (other is RuleOverrideTile)
-                other = (other as RuleOverrideTile).m_InstanceTile;
-
-            if (matchSiblingLayer && other is SiblingRuleTile)
+            if (!isMatch)
             {
-                bool isMatch = siblingLayer == (other as SiblingRuleTile).siblingLayer;
-                return isMatch == isMatchCondition;
+                isMatch = siblings.Contains(other);
             }
 
-            return base.RuleMatch(neighbor, other);
+            if (!isMatch && matchSiblingLayer)
+            {
+                if (other is RuleOverrideTile)
+                    other = (other as RuleOverrideTile).m_InstanceTile;
+
+                if (other is SiblingRuleTile)
+                    isMatch = siblingLayer == (other as SiblingRuleTile).siblingLayer;
+            }
+
+            return isMatch == isMatchCondition;
         }
     }
 }

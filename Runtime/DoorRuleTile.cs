@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 namespace RuleTileExtras
 {
     [CreateAssetMenu(menuName = "Rule Tile Extras/Door Rule Tile")]
-    public partial class DoorRuleTile : RuleTile
+    public class DoorRuleTile : RuleTile
     {
 
         public int rulesSplitIndex = 0;
@@ -12,8 +12,7 @@ namespace RuleTileExtras
 
         protected override bool RuleMatches(TilingRule rule, Vector3Int position, ITilemap tilemap, ref Matrix4x4 transform)
         {
-            GridInformation gridInfo = tilemap.GetComponent<GridInformation>();
-            bool isOpen = gridInfo ? IsOpen(position, gridInfo) : false;
+            bool isOpen = IsOpen(position, tilemap.GetComponent<GridInformation>());
             bool isOpenRule = m_TilingRules.IndexOf(rule) >= rulesSplitIndex;
 
             if (isOpen != isOpenRule)
@@ -24,13 +23,16 @@ namespace RuleTileExtras
 
         public bool IsOpen(Vector3Int position, GridInformation gridInfo)
         {
+            if (!gridInfo)
+                return false;
+
             return gridInfo.GetPositionProperty(position, gridInformationKey, 0) == 1;
         }
 
-        public void SetOpen(Vector3Int position, Tilemap tilemap, GridInformation gridInfo, bool open)
+        public void SetOpen(Vector3Int position, GridInformation gridInfo, bool open)
         {
             gridInfo.SetPositionProperty(position, gridInformationKey, open ? 1 : 0);
-            tilemap.RefreshTile(position);
+            gridInfo.GetComponent<Tilemap>().RefreshTile(position);
         }
     }
 }

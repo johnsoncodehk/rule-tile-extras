@@ -14,7 +14,6 @@ namespace RuleTileExtras.Editor
         {
             public Vector3Int position;
             public Tilemap tilemap;
-            public GridInformation gridInfo;
         }
 
         public DoorRuleTile doorTile => target as DoorRuleTile;
@@ -71,20 +70,16 @@ namespace RuleTileExtras.Editor
                     for (int y = bounds.yMin; y < bounds.yMax; y++)
                     {
                         var position = new Vector3Int(x, y, 0);
-                        var doorTile = tilemap.GetTile(position);
-                        if (doorTile == this.doorTile)
+                        var other = tilemap.GetTile(position);
+                        if (other == doorTile)
                         {
-                            bool dataValue = false;
-                            var gridInfo = tilemap.GetComponent<GridInformation>();
-                            if (gridInfo)
-                                dataValue = this.doorTile.IsOpen(position, gridInfo);
+                            bool isOpen = doorTile.IsOpen(position, tilemap.GetComponent<GridInformation>());
 
                             var dataKey = new DataKey();
                             dataKey.tilemap = tilemap;
-                            dataKey.gridInfo = gridInfo;
                             dataKey.position = position;
 
-                            m_DataList.Add(new KeyValuePair<DataKey, bool>(dataKey, dataValue));
+                            m_DataList.Add(new KeyValuePair<DataKey, bool>(dataKey, isOpen));
                         }
                     }
                 }
@@ -118,7 +113,8 @@ namespace RuleTileExtras.Editor
                 EditorGUI.Vector3IntField(positionRect, GUIContent.none, data.Key.position);
             }
 
-            if (!data.Key.gridInfo)
+            var gridInfo = data.Key.tilemap.GetComponent<GridInformation>();
+            if (!gridInfo)
             {
                 if (GUI.Button(toggleRect, "Add GridInformation"))
                     data.Key.tilemap.gameObject.AddComponent<GridInformation>();
@@ -130,7 +126,7 @@ namespace RuleTileExtras.Editor
                     bool open = EditorGUI.ToggleLeft(toggleRect, GUIContent.none, data.Value);
 
                     if (check.changed)
-                        doorTile.SetOpen(data.Key.position, data.Key.tilemap, data.Key.gridInfo, open);
+                        doorTile.SetOpen(data.Key.position, gridInfo, open);
                 }
             }
         }
@@ -177,8 +173,8 @@ namespace RuleTileExtras.Editor
             m_PreviewTilemaps[0].SetTile(new Vector3Int(-1, 0, 0), tile);
             m_PreviewTilemaps[1].SetTile(new Vector3Int(0, 0, 0), tile);
 
-            doorTile.SetOpen(new Vector3Int(-1, 0, 0), m_PreviewTilemaps[0], m_PreviewTilemaps[0].gameObject.AddComponent<GridInformation>(), false);
-            doorTile.SetOpen(new Vector3Int(0, 0, 0), m_PreviewTilemaps[1], m_PreviewTilemaps[1].gameObject.AddComponent<GridInformation>(), true);
+            doorTile.SetOpen(new Vector3Int(-1, 0, 0), m_PreviewTilemaps[0].gameObject.AddComponent<GridInformation>(), false);
+            doorTile.SetOpen(new Vector3Int(0, 0, 0), m_PreviewTilemaps[1].gameObject.AddComponent<GridInformation>(), true);
         }
     }
 }
