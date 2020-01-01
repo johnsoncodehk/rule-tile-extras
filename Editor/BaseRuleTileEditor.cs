@@ -2,5 +2,5 @@
 
 namespace RuleTileExtras.Editor
 {
-    public class BaseRuleTileEditor : RuleTileEditor { }
+    public class BaseRuleTileEditor : IsometricRuleTileEditor { }
 }
