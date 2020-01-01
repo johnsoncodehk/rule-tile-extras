@@ -2,6 +2,6 @@
 
 namespace RuleTileExtras
 {
-    public class BaseRuleTile : RuleTile { }
-    public class BaseRuleTile<T> : RuleTile<T> { }
+    public class BaseRuleTile : HexagonalRuleTile { }
+    public class BaseRuleTile<T> : HexagonalRuleTile<T> { }
 }
