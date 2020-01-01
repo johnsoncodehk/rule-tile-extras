@@ -7,7 +7,7 @@ using UnityEditorInternal;
 namespace RuleTileExtras.Editor
 {
     [CustomEditor(typeof(DoorRuleTile))]
-    public class DoorRuleTileEditor : RuleTileEditor
+    public class DoorRuleTileEditor : BaseRuleTileEditor
     {
 
         public struct DataKey

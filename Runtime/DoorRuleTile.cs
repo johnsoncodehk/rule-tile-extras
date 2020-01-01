@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 namespace RuleTileExtras
 {
     [CreateAssetMenu(menuName = "Rule Tile Extras/Door Rule Tile")]
-    public class DoorRuleTile : RuleTile
+    public class DoorRuleTile : BaseRuleTile
     {
 
         public int rulesSplitIndex = 0;

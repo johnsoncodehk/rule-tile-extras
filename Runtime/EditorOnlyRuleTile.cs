@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace RuleTileExtras
 {
     [CreateAssetMenu(menuName = "Rule Tile Extras/Editor Only Rule Tile")]
-    public class EditorOnlyRuleTile : RuleTile
+    public class EditorOnlyRuleTile : BaseRuleTile
     {
 
         static HashSet<KeyValuePair<ITilemap, Vector3Int>> m_StartUpPositions = new HashSet<KeyValuePair<ITilemap, Vector3Int>>();

@@ -4,8 +4,13 @@
 
 The following line needs to be added to your Packages/manifest.json file in your Unity Project under the dependencies section:
 
-```json
+```js
+/* use RuleTile */
 "com.johnsoncodehk.rule-tile-extras": "https://github.com/johnsoncodehk/rule-tile-extras.git"
+/* use HexagonalRuleTile */
+"com.johnsoncodehk.rule-tile-extras": "https://github.com/johnsoncodehk/rule-tile-extras.git#hexagonal"
+/* use IsometricRuleTile */
+"com.johnsoncodehk.rule-tile-extras": "https://github.com/johnsoncodehk/rule-tile-extras.git#isometric"
 ```
 
 ### Tiles

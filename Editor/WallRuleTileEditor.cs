@@ -6,7 +6,7 @@ using UnityEditor;
 namespace RuleTileExtras.Editor
 {
     [CustomEditor(typeof(WallRuleTile))]
-    public class WallRuleTileEditor : RuleTileEditor
+    public class WallRuleTileEditor : BaseRuleTileEditor
     {
 
         TileBase m_PreviewOtherTile;
