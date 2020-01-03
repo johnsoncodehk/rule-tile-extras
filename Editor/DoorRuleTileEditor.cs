@@ -21,6 +21,14 @@ namespace RuleTileExtras.Editor
         public List<KeyValuePair<DataKey, bool>> m_DataList = new List<KeyValuePair<DataKey, bool>>();
         public ReorderableList m_InstanceList;
 
+        public RuleTile onCloseTile => GetSubTile(0, 0, doorTile.rulesSplitIndex);
+        public RuleTile onOpenTile => GetSubTile(1, doorTile.rulesSplitIndex, doorTile.m_TilingRules.Count);
+        public RuleTileEditor onCloseTileEditor => GetSubTileEditor(0, onCloseTile);
+        public RuleTileEditor onOpenTileEditor => GetSubTileEditor(1, onOpenTile);
+
+        RuleTileEditor[] m_SubTileEditors = new RuleTileEditor[2];
+        RuleTile[] m_SubTiles = new RuleTile[2];
+
         public ReorderableList instanceList
         {
             get
@@ -35,30 +43,90 @@ namespace RuleTileExtras.Editor
             }
         }
 
+        public RuleTile GetSubTile(int index, int rulesStart, int rulesEnd)
+        {
+            if (m_SubTiles[index] == null)
+            {
+                m_SubTiles[index] = DoorRuleTile.CreateInstance("RuleTile") as RuleTile;
+
+                for (int i = rulesStart; i < rulesEnd; i++)
+                    m_SubTiles[index].m_TilingRules.Add(doorTile.m_TilingRules[i]);
+            }
+
+            return m_SubTiles[index];
+        }
+
+        public RuleTileEditor GetSubTileEditor(int index, RuleTile tile)
+        {
+            if (m_SubTileEditors[index] == null)
+            {
+                m_SubTileEditors[index] = UnityEditor.Editor.CreateEditor(tile) as RuleTileEditor;
+                m_SubTileEditors[index].m_ReorderableList.onChangedCallback += list => OnSubListUpdate(index);
+            }
+
+            return m_SubTileEditors[index];
+        }
+
+        public void OnSubListUpdate(int index)
+        {
+            List<RuleTile.TilingRule> listToFix = m_SubTiles[index].m_TilingRules;
+            List<RuleTile.TilingRule> otherList = m_SubTiles[(index + 1) % 2].m_TilingRules;
+            HashSet<int> usedIdSet = new HashSet<int>();
+
+            foreach (var rule in otherList)
+                usedIdSet.Add(rule.m_Id);
+
+            foreach (var rule in listToFix)
+            {
+                while (usedIdSet.Contains(rule.m_Id))
+                    rule.m_Id++;
+                usedIdSet.Add(rule.m_Id);
+            }
+
+            UpdateRulesFromSubLists();
+        }
+
+        public void UpdateRulesFromSubLists()
+        {
+            doorTile.m_TilingRules.Clear();
+
+            foreach (var rule in onCloseTile.m_TilingRules)
+                doorTile.m_TilingRules.Add(rule);
+            foreach (var rule in onOpenTile.m_TilingRules)
+                doorTile.m_TilingRules.Add(rule);
+
+            doorTile.rulesSplitIndex = onCloseTile.m_TilingRules.Count;
+            SaveTile();
+        }
+
+        public override void OnDisable()
+        {
+            base.OnDisable();
+
+            DestroyImmediate(m_SubTileEditors[0]);
+            DestroyImmediate(m_SubTileEditors[1]);
+            DestroyImmediate(m_SubTiles[0]);
+            DestroyImmediate(m_SubTiles[1]);
+        }
+
         public override void OnInspectorGUI()
         {
-            base.OnInspectorGUI();
-            if (doorTile.m_TilingRules.Count > 0)
-            {
-                float index = doorTile.rulesSplitIndex;
-                float max = doorTile.m_TilingRules.Count;
-                EditorGUILayout.MinMaxSlider(ref index, ref max, 0, max);
-                int newIndex = Mathf.RoundToInt(index);
-                if (doorTile.rulesSplitIndex != newIndex)
-                {
-                    doorTile.rulesSplitIndex = newIndex;
-                    SaveTile();
-                }
+            EditorGUI.BeginChangeCheck();
 
-                List<int> closeRules = new List<int>();
-                List<int> openRules = new List<int>();
-                for (int i = 0; i < doorTile.m_TilingRules.Count; i++)
-                    (i < doorTile.rulesSplitIndex ? closeRules : openRules).Add(i);
-                string info = "Close Tiling Rules: " + string.Join(", ", closeRules);
-                info += "\nOpen Tiling Rules: " + string.Join(", ", openRules);
-                EditorGUILayout.HelpBox(info, MessageType.Info);
-            }
+            tile.m_DefaultSprite = EditorGUILayout.ObjectField("Default Sprite", tile.m_DefaultSprite, typeof(Sprite), false) as Sprite;
+            tile.m_DefaultGameObject = EditorGUILayout.ObjectField("Default Game Object", tile.m_DefaultGameObject, typeof(GameObject), false) as GameObject;
+            tile.m_DefaultColliderType = (Tile.ColliderType)EditorGUILayout.EnumPopup("Default Collider", tile.m_DefaultColliderType);
+            DrawCustomFields(false);
             EditorGUILayout.Space();
+
+            EditorGUILayout.LabelField("On Close");
+            onCloseTileEditor.m_ReorderableList.DoLayoutList();
+            EditorGUILayout.LabelField("On Open");
+            onOpenTileEditor.m_ReorderableList.DoLayoutList();
+            EditorGUILayout.Space();
+
+            if (EditorGUI.EndChangeCheck())
+                SaveTile();
 
             m_DataList.Clear();
             var tilemaps = FindObjectsOfType<Tilemap>();

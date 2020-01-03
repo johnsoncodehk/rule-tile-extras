@@ -7,10 +7,10 @@ namespace RuleTileExtras
     public class DoorRuleTile : BaseRuleTile
     {
 
-        public int rulesSplitIndex = 0;
+        [HideInInspector] [DontOverride] public int rulesSplitIndex = 0;
         public string gridInformationKey = "Is Opened";
 
-        protected override bool RuleMatches(TilingRule rule, Vector3Int position, ITilemap tilemap, ref Matrix4x4 transform)
+        public override bool RuleMatches(TilingRule rule, Vector3Int position, ITilemap tilemap, ref Matrix4x4 transform)
         {
             bool isOpen = IsOpen(position, tilemap.GetComponent<GridInformation>());
             bool isOpenRule = m_TilingRules.IndexOf(rule) >= rulesSplitIndex;
